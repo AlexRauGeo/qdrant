@@ -42,7 +42,7 @@ impl Collection {
             .read_owned()
             .await
             .all_shards()
-            .map(|shard| shard.clone())
+            .map(Arc::clone)
             .collect();
 
         let results = self
