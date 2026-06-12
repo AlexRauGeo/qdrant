@@ -51,8 +51,7 @@ pub(super) const ALL_CANDIDATES: &[VectorCandidate] = &[
 ];
 
 /// Names present in the collection schema at fixture time.
-// "m" (multivector) is temporarily disabled while its reload divergence is unresolved.
-pub(super) const INITIAL_ACTIVE: &[&str] = &["a", "b", "s"];
+pub(super) const INITIAL_ACTIVE: &[&str] = &["a", "b", "s", "m"];
 
 pub(super) struct VectorCandidate {
     pub(super) name: &'static str,
