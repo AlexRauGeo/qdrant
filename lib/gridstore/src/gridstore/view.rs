@@ -127,7 +127,10 @@ impl<'a, V: Blob, S: UniversalRead> GridstoreView<'a, V, S> {
             let ((user_data, point_offset), pointer) = result?;
 
             let PointerItem::Valid(pointer) = pointer else {
-                callback(user_data, point_offset, None)?;
+                if !callback(user_data, point_offset, None)? {
+                    return Ok(false);
+                }
+
                 continue;
             };
 
