@@ -13,8 +13,8 @@ use shard::query::query_enum::QueryEnum;
 use shard::scroll::ScrollRequestInternal;
 
 use super::super::op::{
-    NamedVectors, canonical_sparse, has_num, match_num_filter, match_tag_filter, num_matches,
-    tag_matches,
+    NamedVectors, canonical_sparse, dense_diff, dense_matches, has_num, match_num_filter,
+    match_tag_filter, num_matches, tag_matches,
 };
 use super::super::{Model, VectorValue};
 use crate::collection::Collection;
@@ -63,7 +63,12 @@ fn assert_named_vectors_match(
         });
         match (ret_vec, exp) {
             (VectorInternal::Dense(a), VectorValue::Dense(b)) => {
-                assert_eq!(a, b, "{ctx}: dense vector `{name}` mismatch for id {id:?}");
+                assert!(
+                    dense_matches(name, a, b),
+                    "{ctx}: dense vector `{name}` value divergence for id {id:?}: \
+                     engine {a:?}, model {b:?}; {}",
+                    dense_diff(a, b),
+                );
             }
             (VectorInternal::Sparse(a), VectorValue::Sparse(b)) => {
                 assert_eq!(

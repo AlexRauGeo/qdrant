@@ -12,7 +12,7 @@ use super::{COLLECTION_NAME, INITIAL_ACTIVE, PEER_ID, VectorKind, kind_of};
 use crate::collection::{Collection, RequestShardTransfer};
 use crate::config::{CollectionConfigInternal, CollectionParams, WalConfig};
 use crate::operations::shared_storage_config::SharedStorageConfig;
-use crate::operations::types::{SparseVectorParams, VectorsConfig};
+use crate::operations::types::{Datatype, SparseVectorParams, VectorsConfig};
 use crate::operations::vector_params_builder::VectorParamsBuilder;
 use crate::optimizers_builder::OptimizersConfig;
 use crate::shards::channel_service::ChannelService;
@@ -83,6 +83,14 @@ pub(super) async fn fixture(
                 let mut params = builder.build();
                 params.multivector_config = Some(MultiVectorConfig::default());
                 dense_vectors.insert(name.to_string(), params);
+            }
+            VectorKind::DenseTurbo(dim) => {
+                let mut builder =
+                    VectorParamsBuilder::new(dim, Distance::Dot).with_datatype(Datatype::Turbo4);
+                if on_disk {
+                    builder = builder.with_on_disk(true);
+                }
+                dense_vectors.insert(name.to_string(), builder.build());
             }
         }
     }

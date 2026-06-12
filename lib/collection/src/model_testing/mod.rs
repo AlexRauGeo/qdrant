@@ -21,8 +21,9 @@ const PEER_ID: PeerId = 1;
 const COLLECTION_NAME: &str = "test";
 
 /// Static metadata for every vector name the test might ever activate. Four names start
-/// active in the fixture; the remaining two are exclusively reachable through
-/// `Op::CreateVectorName`.
+/// active in the fixture ("a", "b", "s", "q"); "c" and "u" are reachable through
+/// `Op::CreateVectorName`; "m" stays unreachable while multivectors are disabled (see
+/// the note on `INITIAL_ACTIVE`).
 pub(super) const ALL_CANDIDATES: &[VectorCandidate] = &[
     VectorCandidate {
         name: "a",
@@ -48,11 +49,15 @@ pub(super) const ALL_CANDIDATES: &[VectorCandidate] = &[
         name: "m",
         kind: VectorKind::MultiDense(4),
     },
+    VectorCandidate {
+        name: "q",
+        kind: VectorKind::DenseTurbo(8),
+    },
 ];
 
 /// Names present in the collection schema at fixture time.
 // "m" (multivector) is temporarily disabled while its reload divergence is unresolved.
-pub(super) const INITIAL_ACTIVE: &[&str] = &["a", "b", "s"];
+pub(super) const INITIAL_ACTIVE: &[&str] = &["a", "b", "s", "q"];
 
 pub(super) struct VectorCandidate {
     pub(super) name: &'static str,
@@ -66,6 +71,9 @@ pub(super) enum VectorKind {
     /// ColBERT-style multi-vector: each point stores a matrix of `dim`-wide rows. Scoring
     /// uses MaxSim across query rows × stored rows.
     MultiDense(u64),
+    /// Dense vector stored with the `Turbo4` (TurboQuant 4-bit) storage datatype, the
+    /// primary quantized storage, applied to appendable segments too.
+    DenseTurbo(u64),
 }
 
 pub(super) fn kind_of(name: &str) -> VectorKind {
