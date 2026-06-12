@@ -318,7 +318,10 @@ impl<S: UniversalRead> Pages<S> {
                     "single-page value"
                 );
 
-                callback(user_data, bytes)?;
+                if !callback(user_data, bytes)? {
+                    return Ok(false);
+                }
+
                 continue;
             }
 
@@ -336,9 +339,8 @@ impl<S: UniversalRead> Pages<S> {
                 } = progress;
 
                 let buffer = unsafe { assume_init_vec(buffer) };
-                let should_continue = callback(user_data, Cow::Owned(buffer))?;
 
-                if !should_continue {
+                if !callback(user_data, Cow::Owned(buffer))? {
                     return Ok(false);
                 }
             }
