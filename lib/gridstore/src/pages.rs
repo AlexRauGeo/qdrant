@@ -242,8 +242,8 @@ impl<S: UniversalRead> Pages<S> {
         &self,
         config: &StorageConfig,
         pointers: impl Iterator<Item = (U, ValuePointer)>,
-        mut callback: impl FnMut(U, Cow<'_, [u8]>) -> Result<(), E>,
-    ) -> Result<(), E>
+        mut callback: impl FnMut(U, Cow<'_, [u8]>) -> Result<bool, E>,
+    ) -> Result<bool, E>
     where
         P: AccessPattern,
         E: From<GridstoreError>,
@@ -336,7 +336,11 @@ impl<S: UniversalRead> Pages<S> {
                 } = progress;
 
                 let buffer = unsafe { assume_init_vec(buffer) };
-                callback(user_data, Cow::Owned(buffer))?;
+                let should_continue = callback(user_data, Cow::Owned(buffer))?;
+
+                if !should_continue {
+                    return Ok(false);
+                }
             }
         }
 
@@ -345,7 +349,7 @@ impl<S: UniversalRead> Pages<S> {
             "all multi-page values have been read"
         );
 
-        Ok(())
+        Ok(true)
     }
 
     /// Populate all pages in the mmap.
